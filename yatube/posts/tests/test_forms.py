@@ -4,7 +4,6 @@ from http import HTTPStatus
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse, reverse_lazy
 
@@ -75,40 +74,3 @@ class TaskCreateFormTests(TestCase):
         post_2 = Post.objects.get(id=self.post.id)
         self.assertEqual(response_edit.status_code, HTTPStatus.OK)
         self.assertEqual(post_2.text, 'В лесу родилась елочка')
-
-    def test_post_with_picture(self):
-        """при отправке поста с картинкой через форму PostForm
-        создаётся запись в базе данных и выводится наглавную стараницу"""
-        post_count = Post.objects.count()
-        small_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-            b'\x0A\x00\x3B'
-        )
-        uploaded = SimpleUploadedFile(
-            name='small.gif',
-            content=small_gif,
-            content_type='image/gif'
-        )
-        form_data = {
-            'title': 'Тестовый заголовок',
-            'text': 'Тестовый текст',
-            'image': uploaded,
-        }
-        response = self.authorized_client.post(
-            reverse('post:index'),
-            data=form_data,
-            follow=True,
-        )
-        self.assertRedirects(response, reverse('post:index'))
-        self.assertEqual(Post.objects.count(), post_count + 1)
-        self.assertTrue(
-            Post.objects.filter(
-                slug='Тестовый заголовок',
-                text='Тестовый текст',
-                image='tasks/small.gif'
-            ).exists()
-        )
