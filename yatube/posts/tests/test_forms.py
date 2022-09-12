@@ -56,7 +56,7 @@ class TaskCreateFormTests(TestCase):
                              kwargs={'username': self.author}))
         self.assertEqual(Post.objects.count(), post_count + 1)
 
-    def test_cant_create_existing_post(self):
+    def test_edit_post(self):
         """Проверка редактирования поста"""
         post_2 = Post.objects.get(id=self.post.id)
         form_data = {

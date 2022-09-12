@@ -14,4 +14,4 @@ def page_not_found(request, exception):
 
 def server_error(request):
     """Перенаправление в шаблон при ошибках сервера"""
-    return render(request, "core/500.html", status=500)
+    return render(request, 'core/500.html', status=500)

@@ -16,9 +16,9 @@ class PostAdmin(admin.ModelAdmin):
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     """Настройка отображения модели Group в интерфейсе админки"""
-    list_display = ("pk", "title", "slug", "description")
-    search_fields = ("title",)
-    empty_value_display = "-пусто-"
+    list_display = ('pk', 'title', 'slug', 'description')
+    search_fields = ('title',)
+    empty_value_display = '-пусто-'
 
 
 @admin.register(Comment)

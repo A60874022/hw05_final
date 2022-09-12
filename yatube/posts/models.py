@@ -3,6 +3,7 @@ from django.db import models
 
 User = get_user_model()
 
+TEXT_LENGTH_LIMITER: int = 15
 
 class Group(models.Model):
     """Создание модели для таблицы Сообщества."""
@@ -10,32 +11,33 @@ class Group(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField()
 
-    def __None__(self):
-        return self.title
-
     def __str__(self):
         return self.title
 
 
 class Post(models.Model):
     text = models.TextField(
-        'Текст поста',
-        help_text='Введите текст поста'
-    )
+        verbose_name ='Текст поста',
+        help_text = 'Dведите текст поста')
+
     pub_date = models.DateTimeField(
-        'Дата публикации',
+        verbose_name ='Дата публикации',
         auto_now_add=True
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='posts')
+        related_name='posts',
+        verbose_name = 'Автор поста')
     group: None = models.ForeignKey(Group, on_delete=models.SET_NULL,
                                     related_name="posts", blank=True,
-                                    null=True)
+                                    null=True,
+                                    verbose_name ='Название группы',
+                                    help_text = 'Введите название группы'
+                                    )
     image = models.ImageField(
-        'Картинка',
-        upload_to='posts/',
+        verbose_name = 'Картинка',
+        upload_to='posts',
         blank=True
     )
 
@@ -45,16 +47,16 @@ class Post(models.Model):
         verbose_name_plural = 'Посты'
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[:TEXT_LENGTH_LIMITER]
 
 
 class Comment(models.Model):
     """Создание модели для таблицы Комментарии."""
     text = models.TextField(
-        'Текст комментария',
-        help_text='Введите текст комментария')
+        verbose_name = 'Текст комментария',
+        )
     created = models.DateTimeField(
-        'Дата публикации',
+        verbose_name = 'Дата публикации',
         auto_now_add=True)
     post = models.ForeignKey(Post,
                              on_delete=models.CASCADE,
@@ -64,7 +66,7 @@ class Comment(models.Model):
                                related_name='comments')
 
     def __str__(self):
-        return self.text
+        return self.text[:TEXT_LENGTH_LIMITER]
 
 
 class Follow(models.Model):

@@ -31,6 +31,6 @@ class PostModelTest(TestCase):
         group = PostModelTest.group
         group_title = group.title
         self.assertEqual(self.post.__str__(),
-                         post_title, "Неверный вывод информации")
+                         post_title, 'Неверный вывод информации')
         self.assertEqual(self.group.__str__(),
-                         group_title, "Неверный вывод информации123")
+                         group_title, 'Неверный вывод информации123')

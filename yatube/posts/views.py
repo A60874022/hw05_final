@@ -3,21 +3,22 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-
+from django.db import models 
 from .forms import CommentForm, PostForm
 from .models import Follow, Group, Post
 
 User = get_user_model()
 
 NUMBER_OF_ENTRIES: int = 10
-
+def select_paginator(request, selection, ):
+    paginator = Paginator(selection, NUMBER_OF_ENTRIES)
+    page_number = request.GET.get('page')
+    return paginator.get_page(page_number)
 
 def index(request: HttpRequest) -> HttpResponse:
     """Обработчик запроса страницы - index()"""
-    post_list = Post.objects.select_related('author')
-    paginator = Paginator(post_list, NUMBER_OF_ENTRIES)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    selection = Post.objects.select_related('author')
+    page_obj = select_paginator(request, selection)
     context = {
         'page_obj': page_obj,
     }
@@ -27,17 +28,11 @@ def index(request: HttpRequest) -> HttpResponse:
 def group_posts(request, slug: str):
     """Выводит шаблон с группами постов"""
     group = get_object_or_404(Group, slug=slug)
-    paginator = Paginator(group.posts.all(), NUMBER_OF_ENTRIES)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    posts = group.posts.all()[:NUMBER_OF_ENTRIES]
+    selection = group.posts.all()
+    page_obj = select_paginator(request, selection)
     context = {
         'group': group,
-        'paginator': paginator,
-        'page_number': page_number,
         'page_obj': page_obj,
-        'posts': posts,
-        'group.title': group.title,
     }
     return render(request, 'posts/group_list.html', context)
 
@@ -45,10 +40,8 @@ def group_posts(request, slug: str):
 def profile(request, username: str):
     """Страница профайла пользователя."""
     author = get_object_or_404(User, username=username)
-    paginator = Paginator(author.posts.all(),
-                          NUMBER_OF_ENTRIES)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    selection = author.posts.all()
+    page_obj = select_paginator(request, selection)
     if request.user.is_authenticated:
         following = Follow.objects.filter(
             user=request.user, author=author
@@ -57,8 +50,6 @@ def profile(request, username: str):
         following = False
     context = {
         'author': author,
-        'paginator': paginator,
-        'page_number': page_number,
         'following': following,
         'page_obj': page_obj,
     }
@@ -131,12 +122,10 @@ def follow_index(request):
     """Новая запись пользователя появляется в ленте
     тех, кто на него подписан и не появляется в ленте тех
     кто не подписан."""
-    post = Post.objects.select_related(
+    selection = Post.objects.select_related(
         'author', 'group').filter(
         author__following__user=request.user)
-    paginator = Paginator(post, NUMBER_OF_ENTRIES)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = select_paginator(request, selection)
     context = {
         'page_obj': page_obj,
     }
@@ -149,9 +138,7 @@ def profile_follow(request, username):
     подписываться на других пользователей"""
     user = request.user
     author = User.objects.get(username=username)
-    follower = Follow.objects.filter(user=user, author=author)
-    if user != author and not follower.exists():
-        Follow.objects.create(user=user, author=author)
+    Follow.objects.get_or_create(user=user, author=author)
     return redirect('posts:follow_index')
 
 
