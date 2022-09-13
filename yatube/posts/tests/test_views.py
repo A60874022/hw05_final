@@ -118,7 +118,7 @@ class PostsPagesTests(TestCase):
         self.authorized_author.post(reverse('posts:add_comment',
                                             kwargs={'post_id': self.post.id}))
         self.assertEqual(Post.objects.all().count(), self.POSTS_AUTHORIZED)
-    
+
     def test_verbose_name(self):
         """verbose_name в полях совпадает с ожидаемым."""
         post = PostsPagesTests.post
@@ -142,6 +142,7 @@ class PostsPagesTests(TestCase):
             with self.subTest(value=value):
                 self.assertEqual(
                     post._meta.get_field(value).help_text, expected)
+
 
 class PaginatorViewsTest(TestCase):
     NUMBER_PAGINATOR: int = 10

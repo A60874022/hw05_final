@@ -5,6 +5,7 @@ User = get_user_model()
 
 TEXT_LENGTH_LIMITER: int = 15
 
+
 class Group(models.Model):
     """Создание модели для таблицы Сообщества."""
     title = models.CharField(max_length=200, verbose_name='Группа')
@@ -17,27 +18,26 @@ class Group(models.Model):
 
 class Post(models.Model):
     text = models.TextField(
-        verbose_name ='Текст поста',
-        help_text = 'Dведите текст поста')
-
+        verbose_name='Текст поста',
+        help_text='Dведите текст поста')
     pub_date = models.DateTimeField(
-        verbose_name ='Дата публикации',
+        verbose_name='Дата публикации',
         auto_now_add=True
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='posts',
-        verbose_name = 'Автор поста')
+        verbose_name='Автор поста')
     group: None = models.ForeignKey(Group, on_delete=models.SET_NULL,
                                     related_name="posts", blank=True,
                                     null=True,
-                                    verbose_name ='Название группы',
-                                    help_text = 'Введите название группы'
+                                    verbose_name='Название группы',
+                                    help_text='Введите название группы'
                                     )
     image = models.ImageField(
-        verbose_name = 'Картинка',
-        upload_to='posts',
+        verbose_name='Картинка',
+        upload_to='posts/',
         blank=True
     )
 
@@ -53,10 +53,9 @@ class Post(models.Model):
 class Comment(models.Model):
     """Создание модели для таблицы Комментарии."""
     text = models.TextField(
-        verbose_name = 'Текст комментария',
-        )
+        verbose_name='Текст комментария')
     created = models.DateTimeField(
-        verbose_name = 'Дата публикации',
+        verbose_name='Дата публикации',
         auto_now_add=True)
     post = models.ForeignKey(Post,
                              on_delete=models.CASCADE,

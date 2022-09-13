@@ -3,17 +3,20 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.db import models 
+
 from .forms import CommentForm, PostForm
 from .models import Follow, Group, Post
 
 User = get_user_model()
 
 NUMBER_OF_ENTRIES: int = 10
+
+
 def select_paginator(request, selection, ):
     paginator = Paginator(selection, NUMBER_OF_ENTRIES)
     page_number = request.GET.get('page')
     return paginator.get_page(page_number)
+
 
 def index(request: HttpRequest) -> HttpResponse:
     """Обработчик запроса страницы - index()"""
@@ -136,9 +139,9 @@ def follow_index(request):
 def profile_follow(request, username):
     """Авторизованный пользователь может
     подписываться на других пользователей"""
-    user = request.user
-    author = User.objects.get(username=username)
-    Follow.objects.get_or_create(user=user, author=author)
+    author = get_object_or_404(User, username=username)
+    if author != request.user:
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect('posts:follow_index')
 
 

@@ -52,13 +52,16 @@ class TaskCreateFormTests(TestCase):
             data=form_data,
             follow=True
         )
+        post_1 = Post.objects.get(id=self.group.id).id
+        group_1 = Group.objects.get(id=self.group.id).id
         self.assertRedirects(response, reverse('posts:profile',
                              kwargs={'username': self.author}))
         self.assertEqual(Post.objects.count(), post_count + 1)
+        self.assertEqual(post_1, group_1)
 
     def test_edit_post(self):
         """Проверка редактирования поста"""
-        post_2 = Post.objects.get(id=self.post.id)
+        post_1 = Post.objects.get(id=self.post.id)
         form_data = {
             'text': 'В лесу родилась елочка',
             'group': self.group.id
@@ -66,11 +69,13 @@ class TaskCreateFormTests(TestCase):
         response_edit = self.authorized_client.post(
             reverse('posts:post_edit',
                     kwargs={
-                        'post_id': post_2.id
+                        'post_id': self.post.id
                     }),
             data=form_data,
             follow=True,
         )
         post_2 = Post.objects.get(id=self.post.id)
         self.assertEqual(response_edit.status_code, HTTPStatus.OK)
+        self.assertEqual(post_1.text, 'test_post')
+        self.assertNotEqual(post_1.text, post_2.text)
         self.assertEqual(post_2.text, 'В лесу родилась елочка')
